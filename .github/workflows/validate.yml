@@ -46,20 +46,26 @@ jobs:
 
       - name: Install Godot 4.3
         run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb
           wget --quiet https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
           unzip -q Godot_v4.3-stable_linux.x86_64.zip
           mv Godot_v4.3-stable_linux.x86_64 godot
           chmod +x godot
 
       - name: Render game preview
+        shell: bash
         run: |
-          mkdir -p preview
-          timeout 30s xvfb-run -a ./godot --path . -- --capture-screenshot
-          cp "$HOME/.local/share/godot/app_userdata/Abyssal Protocol/abyssal_protocol_preview.png" preview/abyssal_protocol_preview.png
+          set -o pipefail
+          xvfb-run -a ./godot --path . --capture-screenshot 2>&1 | tee godot-runtime.log
+          cp "$HOME/.local/share/godot/app_userdata/Abyssal Protocol/abyssal_protocol_preview.png" abyssal_protocol_preview.png
 
       - name: Upload preview
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: game-preview
-          path: preview/abyssal_protocol_preview.png
-          if-no-files-found: error
+          path: |
+            abyssal_protocol_preview.png
+            godot-runtime.log
+          if-no-files-found: warn
