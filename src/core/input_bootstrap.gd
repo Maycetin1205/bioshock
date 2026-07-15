@@ -8,11 +8,13 @@ const KEY_ACTIONS := {
 	"sprint": [KEY_SHIFT],
 	"jump": [KEY_SPACE],
 	"interact": [KEY_E],
+	"weapon_reload": [KEY_R],
 	"toggle_mouse_capture": [KEY_ESCAPE],
 }
 
 const MOUSE_ACTIONS := {
-	"ability_primary": [MOUSE_BUTTON_LEFT],
+	"weapon_fire": [MOUSE_BUTTON_LEFT],
+	"ability_primary": [MOUSE_BUTTON_RIGHT],
 }
 
 

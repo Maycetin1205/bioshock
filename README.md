@@ -7,11 +7,13 @@ A modular Godot 4 first-person immersive-sim prototype inspired by the systemic 
 - first-person movement, sprinting, jumping and mouse capture
 - reusable health and energy components
 - interaction ray with contextual prompts
+- hitscan sidearm with ammunition, reload timing, recoil and hit confirmation
 - electric ability that consumes energy, damages and stuns targets
-- powered door and power switch gameplay objects
-- simple enemy detection, chase and melee attack loop
-- event-driven HUD for health, energy, objectives and notifications
-- generated greybox level requiring no external assets
+- shared typed damage packets for weapons, abilities and enemy attacks
+- enemy state machine with idle, suspicious, chase, attack, stun and death states
+- powered door, power switch and ammunition pickup gameplay objects
+- event-driven HUD for health, energy, ammunition, objectives and notifications
+- generated greybox encounter requiring no external assets
 
 ## Run
 
@@ -27,12 +29,14 @@ A modular Godot 4 first-person immersive-sim prototype inspired by the systemic 
 | Sprint | Shift |
 | Jump | Space |
 | Interact | E |
-| Electric burst | Left mouse button |
+| Fire sidearm | Left mouse button |
+| Electric burst | Right mouse button |
+| Reload | R |
 | Release/capture mouse | Escape |
 
 ## Architecture
 
-The prototype level is disposable; the gameplay modules are not. Systems communicate through components, small public methods and the `GameEvents` signal bus. See [`docs/architecture.md`](docs/architecture.md) before extending the project.
+The prototype level is disposable; the gameplay modules are not. Systems communicate through components, small public methods, typed damage packets and the `GameEvents` signal bus. See [`docs/architecture.md`](docs/architecture.md) before extending the project.
 
 ## Originality requirement
 

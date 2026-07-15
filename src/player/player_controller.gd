@@ -11,6 +11,7 @@ extends CharacterBody3D
 @onready var head: Node3D = $Head
 @onready var health_component: HealthComponent = $HealthComponent
 @onready var energy_component: EnergyComponent = $EnergyComponent
+@onready var weapon: HitscanWeapon = $HitscanWeapon
 
 var _gravity: float = float(ProjectSettings.get_setting("physics/3d/default_gravity", 9.8))
 
@@ -22,9 +23,7 @@ func _ready() -> void:
 	health_component.health_changed.connect(_on_health_changed)
 	health_component.died.connect(_on_died)
 	energy_component.energy_changed.connect(_on_energy_changed)
-
-	_on_health_changed(health_component.current_health, health_component.max_health)
-	_on_energy_changed(energy_component.current_energy, energy_component.max_energy)
+	call_deferred("_publish_initial_state")
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -59,12 +58,26 @@ func apply_damage(amount: float, source: Variant = null) -> float:
 	return health_component.damage(amount, source)
 
 
+func apply_damage_packet(packet: DamagePacket) -> float:
+	return health_component.damage(packet.amount, packet.source)
+
+
 func restore_health(amount: float) -> float:
 	return health_component.heal(amount)
 
 
 func restore_energy(amount: float) -> float:
 	return energy_component.restore(amount)
+
+
+func add_ammo(amount: int) -> int:
+	return weapon.add_reserve_ammo(amount)
+
+
+func _publish_initial_state() -> void:
+	_on_health_changed(health_component.current_health, health_component.max_health)
+	_on_energy_changed(energy_component.current_energy, energy_component.max_energy)
+	weapon.publish_state()
 
 
 func _on_health_changed(current: float, maximum: float) -> void:

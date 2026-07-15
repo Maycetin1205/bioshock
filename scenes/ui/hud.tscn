@@ -8,8 +8,8 @@ script = ExtResource("1_hud")
 [node name="Status" type="VBoxContainer" parent="."]
 offset_left = 24.0
 offset_top = 24.0
-offset_right = 340.0
-offset_bottom = 110.0
+offset_right = 430.0
+offset_bottom = 145.0
 theme_override_constants/separation = 4
 
 [node name="HealthLabel" type="Label" parent="Status"]
@@ -22,21 +22,27 @@ unique_name_in_owner = true
 theme_override_font_sizes/font_size = 20
 text = "ENERGIE     100 / 100"
 
+[node name="AmmoLabel" type="Label" parent="Status"]
+unique_name_in_owner = true
+theme_override_font_sizes/font_size = 20
+text = "MUNITION    8 / 32"
+
 [node name="ObjectiveLabel" type="Label" parent="."]
 unique_name_in_owner = true
 anchors_preset = 1
 anchor_left = 1.0
 anchor_right = 1.0
-offset_left = -430.0
+offset_left = -510.0
 offset_top = 24.0
 offset_right = -24.0
-offset_bottom = 110.0
+offset_bottom = 130.0
 grow_horizontal = 0
 theme_override_font_sizes/font_size = 18
 text = "ZIEL\nVersorge die Sicherheitstür mit Strom"
 horizontal_alignment = 2
 
 [node name="Crosshair" type="Label" parent="."]
+unique_name_in_owner = true
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5

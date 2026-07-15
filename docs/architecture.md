@@ -10,27 +10,38 @@ Build a maintainable first-person immersive sim whose placeholder level and visu
 2. **Scenes own presentation.** Scripts expose behavior; production meshes, sounds and animation belong in scenes and resources.
 3. **No direct UI dependencies.** Gameplay publishes state through `GameEvents`; the HUD subscribes to it.
 4. **Small interaction contract.** An interactable implements `get_interaction_prompt(actor)` and `interact(actor)`.
-5. **Damage contracts are explicit.** Actors expose methods such as `apply_damage` and `apply_electric_hit` instead of depending on concrete enemy classes.
+5. **Typed damage contract.** Weapons, abilities and enemies exchange `DamagePacket` objects. `apply_damage` remains only as a compatibility entrypoint.
 6. **Prototype generation stays isolated.** `src/prototype/prototype_level.gd` creates the current greybox and may later be deleted without changing core systems.
-7. **Input actions are stable identifiers.** `InputBootstrap` supplies defaults while later settings UI can remap the same actions.
+7. **Input actions are stable identifiers.** `InputBootstrap` supplies defaults while a later settings UI can remap the same actions.
+8. **State transitions are explicit.** Enemy behavior changes through one state setter, making animation, audio and debugging hooks straightforward to add.
 
 ## Main modules
 
 - `src/core`: cross-cutting signals and startup configuration
 - `src/components`: reusable stateful building blocks
+- `src/combat`: damage packets and weapons
 - `src/player`: locomotion and interaction targeting
 - `src/abilities`: player powers and their resource costs
-- `src/world`: reusable interactive level objects
-- `src/enemies`: enemy behavior built against public player contracts
+- `src/world`: reusable interactive level objects and pickups
+- `src/enemies`: state-driven enemy behavior built against public player contracts
 - `src/ui`: event-driven presentation
 - `src/prototype`: temporary greybox content only
 
+## Combat flow
+
+1. An attack creates a `DamagePacket` with amount, damage type, source and optional hit data.
+2. The receiver handles `apply_damage_packet(packet)` without knowing the concrete weapon or attacker class.
+3. Health remains a generic component and reports state changes or death.
+4. Presentation events such as ammunition, reload state and hit confirmation travel through `GameEvents`.
+
+This keeps future resistances, armor, critical hits and status effects out of weapon-specific code.
+
 ## Next architectural additions
 
-- data-driven ability resources (`AbilityDefinition`)
-- damage types and status-effect components
+- resistance and armor components keyed by damage type
+- data-driven weapon and ability definitions
 - save-game IDs and versioned save data
 - inventory and weapon slots
 - NavigationServer-based enemy movement
 - audio event service and subtitle pipeline
-- automated headless smoke test in CI
+- objective graph and checkpoint service

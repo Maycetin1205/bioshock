@@ -2,6 +2,7 @@ extends Node3D
 
 const PoweredDoorScript := preload("res://src/world/powered_door.gd")
 const PowerSwitchScript := preload("res://src/world/power_switch.gd")
+const AmmoPickupScript := preload("res://src/world/ammo_pickup.gd")
 const EnemyAgentScript := preload("res://src/enemies/enemy_agent.gd")
 
 
@@ -54,6 +55,7 @@ func _build_room() -> void:
 	_create_static_box("DividerRight", Vector3(9.8, 4.0, 0.55), Vector3(7.1, 2.0, -8.0), Color(0.12, 0.18, 0.18))
 	_create_static_box("CoverA", Vector3(2.2, 1.4, 1.4), Vector3(3.0, 0.7, 0.0), Color(0.18, 0.15, 0.10))
 	_create_static_box("CoverB", Vector3(1.6, 2.0, 1.6), Vector3(-2.5, 1.0, -3.0), Color(0.14, 0.12, 0.10))
+	_create_static_box("RearCover", Vector3(3.0, 1.1, 1.2), Vector3(3.5, 0.55, -12.0), Color(0.16, 0.13, 0.10))
 
 	_create_sign("POWER CONTROL", Vector3(-5.2, 2.0, -4.1))
 	_create_sign("SECURITY", Vector3(0.0, 3.5, -7.65))
@@ -71,9 +73,20 @@ func _build_gameplay_objects() -> void:
 	add_child(power_switch)
 	power_switch.set_power_target(door)
 
+	_spawn_enemy("GuardA", Vector3(5.0, 1.0, -4.5))
+	_spawn_enemy("GuardB", Vector3(-3.5, 1.0, -12.0))
+
+	var ammo_pickup := AmmoPickupScript.new() as AmmoPickup
+	ammo_pickup.name = "AmmoPickup"
+	ammo_pickup.position = Vector3(3.0, 0.25, 1.4)
+	ammo_pickup.ammo_amount = 20
+	add_child(ammo_pickup)
+
+
+func _spawn_enemy(enemy_name: String, enemy_position: Vector3) -> void:
 	var enemy := EnemyAgentScript.new() as EnemyAgent
-	enemy.name = "EnemyAgent"
-	enemy.position = Vector3(5.0, 1.0, -4.5)
+	enemy.name = enemy_name
+	enemy.position = enemy_position
 	add_child(enemy)
 
 
@@ -115,5 +128,5 @@ func _create_sign(text: String, sign_position: Vector3) -> void:
 
 
 func _announce_objective() -> void:
-	GameEvents.objective_changed.emit("Versorge die Sicherheitstür mit Strom")
-	GameEvents.notification_requested.emit("Schalter mit [E] bedienen oder mit dem Elektroimpuls treffen")
+	GameEvents.objective_changed.emit("Versorge die Sicherheitstür mit Strom und erreiche den hinteren Raum")
+	GameEvents.notification_requested.emit("[LMB] Pistole  [RMB] Elektroimpuls  [R] Nachladen")

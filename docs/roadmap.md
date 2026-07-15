@@ -13,11 +13,13 @@
 
 ## Milestone 1 — Combat sandbox
 
-- [ ] hitscan sidearm with reload and ammunition
-- [ ] damage types and resistances
+- [x] hitscan sidearm with reload and ammunition
+- [x] typed damage packets
+- [x] enemy perception states: idle, suspicious, chase, attack and stun
+- [x] ammunition pickup and HUD feedback
+- [ ] damage resistances and armor
 - [ ] electric stun chaining through wet surfaces
-- [ ] enemy perception states: idle, suspicious, alert, search
-- [ ] death, checkpoint and restart flow
+- [ ] checkpoint and restart service
 - [ ] impact audio and placeholder VFX
 
 ## Milestone 2 — Immersive-sim systems
