@@ -10,6 +10,7 @@ config/features=PackedStringArray("4.3", "GL Compatibility")
 [autoload]
 GameEvents="*res://src/core/game_events.gd"
 InputBootstrap="*res://src/core/input_bootstrap.gd"
+ScreenshotCapture="*res://src/core/screenshot_capture.gd"
 
 [display]
 window/size/viewport_width=1280
