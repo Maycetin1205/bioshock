@@ -1,0 +1,185 @@
+[gd_scene load_steps=12 format=3]
+
+[sub_resource type="Environment" id="Environment_room"]
+background_mode = 1
+background_color = Color(0.008, 0.018, 0.028, 1)
+ambient_light_source = 3
+ambient_light_color = Color(0.22, 0.38, 0.44, 1)
+ambient_light_energy = 1.15
+tonemap_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="Material_floor"]
+albedo_color = Color(0.08, 0.13, 0.15, 1)
+metallic = 0.35
+roughness = 0.68
+emission_enabled = true
+emission = Color(0.014, 0.024, 0.028, 1)
+
+[sub_resource type="StandardMaterial3D" id="Material_wall"]
+albedo_color = Color(0.07, 0.18, 0.20, 1)
+metallic = 0.28
+roughness = 0.62
+emission_enabled = true
+emission = Color(0.012, 0.032, 0.036, 1)
+
+[sub_resource type="StandardMaterial3D" id="Material_frame"]
+albedo_color = Color(0.09, 0.34, 0.39, 1)
+metallic = 0.65
+roughness = 0.38
+emission_enabled = true
+emission = Color(0.03, 0.14, 0.17, 1)
+
+[sub_resource type="StandardMaterial3D" id="Material_cyan"]
+shading_mode = 0
+albedo_color = Color(0.04, 0.78, 0.92, 1)
+emission_enabled = true
+emission = Color(0.04, 0.78, 0.92, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="StandardMaterial3D" id="Material_orange"]
+shading_mode = 0
+albedo_color = Color(1, 0.22, 0.06, 1)
+emission_enabled = true
+emission = Color(1, 0.16, 0.03, 1)
+emission_energy_multiplier = 4.0
+
+[sub_resource type="BoxMesh" id="Mesh_floor"]
+material = SubResource("Material_floor")
+size = Vector3(24, 0.5, 28)
+
+[sub_resource type="BoxMesh" id="Mesh_wall_side"]
+material = SubResource("Material_wall")
+size = Vector3(0.5, 4.5, 28)
+
+[sub_resource type="BoxMesh" id="Mesh_wall_end"]
+material = SubResource("Material_wall")
+size = Vector3(24, 4.5, 0.5)
+
+[sub_resource type="BoxMesh" id="Mesh_frame_vertical"]
+material = SubResource("Material_frame")
+size = Vector3(0.35, 3.7, 0.35)
+
+[sub_resource type="BoxMesh" id="Mesh_frame_top"]
+material = SubResource("Material_frame")
+size = Vector3(12.35, 0.3, 0.35)
+
+[sub_resource type="BoxMesh" id="Mesh_strip"]
+material = SubResource("Material_cyan")
+size = Vector3(0.16, 0.08, 12)
+
+[sub_resource type="BoxMesh" id="Mesh_header"]
+material = SubResource("Material_orange")
+size = Vector3(4.2, 0.18, 0.22)
+
+[node name="VisibleRoom" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_room")
+
+[node name="KeyLight" type="DirectionalLight3D" parent="."]
+rotation_degrees = Vector3(-55, -25, 0)
+light_color = Color(0.42, 0.72, 0.82, 1)
+light_energy = 1.4
+shadow_enabled = true
+
+[node name="EntryLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 2.8, 4)
+light_color = Color(0.18, 0.72, 0.86, 1)
+light_energy = 4.0
+omni_range = 10.0
+
+[node name="SecurityLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 2.9, -7)
+light_color = Color(0.95, 0.28, 0.12, 1)
+light_energy = 4.5
+omni_range = 9.0
+
+[node name="RearLight" type="OmniLight3D" parent="."]
+position = Vector3(0, 2.8, -13)
+light_color = Color(0.18, 0.54, 0.96, 1)
+light_energy = 4.0
+omni_range = 9.0
+
+[node name="Floor" type="MeshInstance3D" parent="."]
+position = Vector3(0, -0.25, -4)
+mesh = SubResource("Mesh_floor")
+
+[node name="Ceiling" type="MeshInstance3D" parent="."]
+position = Vector3(0, 4.2, -4)
+mesh = SubResource("Mesh_floor")
+
+[node name="LeftWall" type="MeshInstance3D" parent="."]
+position = Vector3(-12, 2, -4)
+mesh = SubResource("Mesh_wall_side")
+
+[node name="RightWall" type="MeshInstance3D" parent="."]
+position = Vector3(12, 2, -4)
+mesh = SubResource("Mesh_wall_side")
+
+[node name="FrontWall" type="MeshInstance3D" parent="."]
+position = Vector3(0, 2, 10)
+mesh = SubResource("Mesh_wall_end")
+
+[node name="BackWall" type="MeshInstance3D" parent="."]
+position = Vector3(0, 2, -18)
+mesh = SubResource("Mesh_wall_end")
+
+[node name="CyanStripLeft" type="MeshInstance3D" parent="."]
+position = Vector3(-5.5, 0.04, 2)
+mesh = SubResource("Mesh_strip")
+
+[node name="CyanStripRight" type="MeshInstance3D" parent="."]
+position = Vector3(5.5, 0.04, 2)
+mesh = SubResource("Mesh_strip")
+
+[node name="SecurityHeader" type="MeshInstance3D" parent="."]
+position = Vector3(0, 3.25, -7.62)
+mesh = SubResource("Mesh_header")
+
+[node name="FrameLeftA" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 1.85, 5)
+mesh = SubResource("Mesh_frame_vertical")
+
+[node name="FrameRightA" type="MeshInstance3D" parent="."]
+position = Vector3(6, 1.85, 5)
+mesh = SubResource("Mesh_frame_vertical")
+
+[node name="FrameTopA" type="MeshInstance3D" parent="."]
+position = Vector3(0, 3.65, 5)
+mesh = SubResource("Mesh_frame_top")
+
+[node name="FrameLeftB" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 1.85, 1)
+mesh = SubResource("Mesh_frame_vertical")
+
+[node name="FrameRightB" type="MeshInstance3D" parent="."]
+position = Vector3(6, 1.85, 1)
+mesh = SubResource("Mesh_frame_vertical")
+
+[node name="FrameTopB" type="MeshInstance3D" parent="."]
+position = Vector3(0, 3.65, 1)
+mesh = SubResource("Mesh_frame_top")
+
+[node name="FrameLeftC" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 1.85, -3)
+mesh = SubResource("Mesh_frame_vertical")
+
+[node name="FrameRightC" type="MeshInstance3D" parent="."]
+position = Vector3(6, 1.85, -3)
+mesh = SubResource("Mesh_frame_vertical")
+
+[node name="FrameTopC" type="MeshInstance3D" parent="."]
+position = Vector3(0, 3.65, -3)
+mesh = SubResource("Mesh_frame_top")
+
+[node name="FrameLeftD" type="MeshInstance3D" parent="."]
+position = Vector3(-6, 1.85, -7)
+mesh = SubResource("Mesh_frame_vertical")
+
+[node name="FrameRightD" type="MeshInstance3D" parent="."]
+position = Vector3(6, 1.85, -7)
+mesh = SubResource("Mesh_frame_vertical")
+
+[node name="FrameTopD" type="MeshInstance3D" parent="."]
+position = Vector3(0, 3.65, -7)
+mesh = SubResource("Mesh_frame_top")
