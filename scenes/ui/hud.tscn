@@ -1,0 +1,82 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://src/ui/hud.gd" id="1_hud"]
+
+[node name="HUD" type="CanvasLayer"]
+script = ExtResource("1_hud")
+
+[node name="Status" type="VBoxContainer" parent="."]
+offset_left = 24.0
+offset_top = 24.0
+offset_right = 340.0
+offset_bottom = 110.0
+theme_override_constants/separation = 4
+
+[node name="HealthLabel" type="Label" parent="Status"]
+unique_name_in_owner = true
+theme_override_font_sizes/font_size = 20
+text = "GESUNDHEIT  100 / 100"
+
+[node name="EnergyLabel" type="Label" parent="Status"]
+unique_name_in_owner = true
+theme_override_font_sizes/font_size = 20
+text = "ENERGIE     100 / 100"
+
+[node name="ObjectiveLabel" type="Label" parent="."]
+unique_name_in_owner = true
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -430.0
+offset_top = 24.0
+offset_right = -24.0
+offset_bottom = 110.0
+grow_horizontal = 0
+theme_override_font_sizes/font_size = 18
+text = "ZIEL\nVersorge die Sicherheitstür mit Strom"
+horizontal_alignment = 2
+
+[node name="Crosshair" type="Label" parent="."]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -12.0
+offset_top = -18.0
+offset_right = 12.0
+offset_bottom = 18.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_font_sizes/font_size = 26
+text = "+"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="PromptLabel" type="Label" parent="."]
+unique_name_in_owner = true
+anchors_preset = 12
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 220.0
+offset_top = -140.0
+offset_right = -220.0
+offset_bottom = -90.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 22
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NotificationLabel" type="Label" parent="."]
+unique_name_in_owner = true
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 220.0
+offset_top = 110.0
+offset_right = -220.0
+offset_bottom = 160.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+vertical_alignment = 1
