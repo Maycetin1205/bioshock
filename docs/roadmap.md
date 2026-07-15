@@ -10,6 +10,7 @@
 - [x] powered door and switch
 - [x] simple enemy loop
 - [x] HUD and objective messaging
+- [x] authored visible room shell plus procedural collision layer
 
 ## Milestone 1 — Combat sandbox
 
@@ -21,6 +22,7 @@
 - [ ] electric stun chaining through wet surfaces
 - [ ] checkpoint and restart service
 - [ ] impact audio and placeholder VFX
+- [x] automated rendered screenshot artifact
 
 ## Milestone 2 — Immersive-sim systems
 
