@@ -1,6 +1,8 @@
 class_name HitscanWeapon
 extends Node
 
+const DamagePacketScript := preload("res://src/combat/damage_packet.gd")
+
 signal ammo_changed(in_magazine: int, reserve: int)
 signal reload_state_changed(is_reloading: bool)
 signal fired
@@ -40,12 +42,10 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	_cooldown_remaining = maxf(0.0, _cooldown_remaining - delta)
-	if not is_reloading:
-		return
-
-	_reload_remaining -= delta
-	if _reload_remaining <= 0.0:
-		_finish_reload()
+	if is_reloading:
+		_reload_remaining -= delta
+		if _reload_remaining <= 0.0:
+			_finish_reload()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -64,7 +64,6 @@ func try_fire() -> bool:
 		GameEvents.notification_requested.emit("Magazin leer")
 		start_reload()
 		return false
-
 	ammo_in_magazine -= 1
 	_cooldown_remaining = fire_interval
 	_publish_ammo()
@@ -78,7 +77,6 @@ func try_fire() -> bool:
 func start_reload() -> bool:
 	if is_reloading or ammo_in_magazine >= magazine_size or reserve_ammo <= 0:
 		return false
-
 	is_reloading = true
 	_reload_remaining = reload_duration
 	reload_state_changed.emit(true)
@@ -129,28 +127,18 @@ func _fire_ray() -> void:
 	var query := PhysicsRayQueryParameters3D.create(origin, endpoint)
 	if _owner_actor != null:
 		query.exclude = [_owner_actor.get_rid()]
-
 	var hit := camera.get_world_3d().direct_space_state.intersect_ray(query)
 	if hit.is_empty():
 		return
-
 	var receiver := _resolve_damage_receiver(hit.get("collider"))
 	if receiver == null:
 		return
-
-	var packet := DamagePacket.new(
-		damage,
-		DamagePacket.DamageType.KINETIC,
-		_owner_actor,
-		hit.get("position", Vector3.ZERO),
-		hit.get("normal", Vector3.ZERO)
-	)
+	var packet = DamagePacketScript.new(damage, DamagePacketScript.DamageType.KINETIC, _owner_actor, hit.get("position", Vector3.ZERO), hit.get("normal", Vector3.ZERO))
 	var applied_damage := 0.0
 	if receiver.has_method("apply_damage_packet"):
 		applied_damage = float(receiver.call("apply_damage_packet", packet))
 	elif receiver.has_method("apply_damage"):
 		applied_damage = float(receiver.call("apply_damage", damage, _owner_actor))
-
 	if applied_damage > 0.0:
 		hit_confirmed.emit(applied_damage)
 		GameEvents.hit_confirmed.emit(applied_damage)
@@ -159,7 +147,6 @@ func _fire_ray() -> void:
 func _resolve_damage_receiver(candidate: Variant) -> Node:
 	if not candidate is Node:
 		return null
-
 	var current := candidate as Node
 	for _index in range(6):
 		if current.has_method("apply_damage_packet") or current.has_method("apply_damage"):
