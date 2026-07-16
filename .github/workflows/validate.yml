@@ -1,0 +1,71 @@
+name: Validate project
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  repository-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate project references and formatting
+        run: python tools/validate_project.py
+
+  godot-smoke-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.3
+        run: |
+          wget --quiet https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          mv Godot_v4.3-stable_linux.x86_64 godot
+          chmod +x godot
+
+      - name: Import and parse project headlessly
+        run: ./godot --headless --editor --quit --path .
+
+  render-preview:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.3
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq xvfb
+          wget --quiet https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.3-stable_linux.x86_64.zip
+          mv Godot_v4.3-stable_linux.x86_64 godot
+          chmod +x godot
+
+      - name: Render game preview
+        shell: bash
+        run: |
+          set -o pipefail
+          xvfb-run -a ./godot --path . --capture-screenshot 2>&1 | tee godot-runtime.log
+          cp "$HOME/.local/share/godot/app_userdata/Abyssal Protocol/abyssal_protocol_preview.png" abyssal_protocol_preview.png
+
+      - name: Upload preview
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: game-preview
+          path: |
+            abyssal_protocol_preview.png
+            godot-runtime.log
+          if-no-files-found: warn
