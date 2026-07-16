@@ -1,18 +1,12 @@
 class_name EnemyAgent
 extends CharacterBody3D
 
+const HealthComponentScript := preload("res://src/components/health_component.gd")
+const DamagePacketScript := preload("res://src/combat/damage_packet.gd")
+
 signal state_changed(previous_state: int, current_state: int)
 
-enum State {
-	IDLE,
-	SUSPICIOUS,
-	CHASING,
-	ATTACKING,
-	STUNNED,
-	DEAD,
-}
-
-const HealthComponentScript := preload("res://src/components/health_component.gd")
+enum State { IDLE, SUSPICIOUS, CHASING, ATTACKING, STUNNED, DEAD }
 
 @export_range(0.1, 20.0, 0.1) var movement_speed: float = 2.4
 @export_range(1.0, 50.0, 0.5) var detection_distance: float = 12.0
@@ -21,7 +15,7 @@ const HealthComponentScript := preload("res://src/components/health_component.gd
 @export_range(0.1, 10.0, 0.1) var attack_cooldown: float = 1.0
 @export_range(0.5, 30.0, 0.5) var memory_duration: float = 4.0
 
-var _health: HealthComponent
+var _health: Node
 var _target: Node3D
 var _state: int = State.IDLE
 var _attack_timer: float = 0.0
@@ -43,19 +37,15 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if _state == State.DEAD:
 		return
-
 	_attack_timer = maxf(0.0, _attack_timer - delta)
 	if not is_on_floor():
 		velocity.y -= _gravity * delta
-
 	if _target == null or not is_instance_valid(_target):
 		_target = get_tree().get_first_node_in_group("player") as Node3D
-
 	if _state == State.STUNNED:
 		_update_stunned(delta)
 		move_and_slide()
 		return
-
 	var can_see_target := _target != null and _is_target_visible()
 	if can_see_target:
 		_last_known_position = _target.global_position
@@ -64,7 +54,6 @@ func _physics_process(delta: float) -> void:
 		_set_state(State.ATTACKING if target_distance <= attack_distance else State.CHASING)
 	elif _state == State.CHASING or _state == State.ATTACKING:
 		_set_state(State.SUSPICIOUS)
-
 	match _state:
 		State.IDLE:
 			_brake(delta)
@@ -76,26 +65,21 @@ func _physics_process(delta: float) -> void:
 			_brake(delta)
 			_face_target()
 			_try_attack()
-
 	move_and_slide()
 
 
 func apply_damage(amount: float, source: Variant = null) -> float:
-	var packet_source: Node = null
-	if source is Node:
-		packet_source = source as Node
-	var packet := DamagePacket.new(amount, DamagePacket.DamageType.KINETIC, packet_source)
+	var packet_source: Node = source as Node if source is Node else null
+	var packet = DamagePacketScript.new(amount, DamagePacketScript.DamageType.KINETIC, packet_source)
 	return apply_damage_packet(packet)
 
 
-func apply_damage_packet(packet: DamagePacket) -> float:
+func apply_damage_packet(packet: Variant) -> float:
 	if _state == State.DEAD:
 		return 0.0
-
-	var applied := _health.damage(packet.amount, packet.source)
+	var applied := float(_health.damage(float(packet.amount), packet.source))
 	if applied <= 0.0 or _state == State.DEAD:
 		return applied
-
 	if packet.source is Node3D:
 		_last_known_position = (packet.source as Node3D).global_position
 		_memory_timer = memory_duration
@@ -105,14 +89,11 @@ func apply_damage_packet(packet: DamagePacket) -> float:
 
 
 func apply_electric_hit(damage: float, stun_duration: float, source: Variant = null) -> void:
-	var packet_source: Node = null
-	if source is Node:
-		packet_source = source as Node
-	var packet := DamagePacket.new(damage, DamagePacket.DamageType.ELECTRIC, packet_source)
+	var packet_source: Node = source as Node if source is Node else null
+	var packet = DamagePacketScript.new(damage, DamagePacketScript.DamageType.ELECTRIC, packet_source)
 	var applied := apply_damage_packet(packet)
 	if applied <= 0.0 or _state == State.DEAD:
 		return
-
 	_stun_timer = maxf(_stun_timer, stun_duration)
 	_set_state(State.STUNNED)
 	GameEvents.notification_requested.emit("Ziel elektrisiert")
@@ -120,18 +101,12 @@ func apply_electric_hit(damage: float, stun_duration: float, source: Variant = n
 
 func get_state_name() -> StringName:
 	match _state:
-		State.IDLE:
-			return &"idle"
-		State.SUSPICIOUS:
-			return &"suspicious"
-		State.CHASING:
-			return &"chasing"
-		State.ATTACKING:
-			return &"attacking"
-		State.STUNNED:
-			return &"stunned"
-		State.DEAD:
-			return &"dead"
+		State.IDLE: return &"idle"
+		State.SUSPICIOUS: return &"suspicious"
+		State.CHASING: return &"chasing"
+		State.ATTACKING: return &"attacking"
+		State.STUNNED: return &"stunned"
+		State.DEAD: return &"dead"
 	return &"unknown"
 
 
@@ -147,7 +122,6 @@ func _update_suspicious(delta: float) -> void:
 	if _memory_timer <= 0.0:
 		_set_state(State.IDLE)
 		return
-
 	if _planar_distance_to(_last_known_position) > 0.65:
 		_move_toward_position(_last_known_position)
 	else:
@@ -159,7 +133,6 @@ func _move_toward_position(destination: Vector3) -> void:
 	var planar_offset := Vector3(offset.x, 0.0, offset.z)
 	if planar_offset.is_zero_approx():
 		return
-
 	var direction := planar_offset.normalized()
 	velocity.x = direction.x * movement_speed
 	velocity.z = direction.z * movement_speed
@@ -172,23 +145,15 @@ func _brake(delta: float) -> void:
 
 
 func _face_target() -> void:
-	if _target == null:
-		return
-	look_at(Vector3(_target.global_position.x, global_position.y, _target.global_position.z), Vector3.UP, true)
+	if _target != null:
+		look_at(Vector3(_target.global_position.x, global_position.y, _target.global_position.z), Vector3.UP, true)
 
 
 func _try_attack() -> void:
 	if _attack_timer > 0.0 or _target == null:
 		return
 	_attack_timer = attack_cooldown
-
-	var packet := DamagePacket.new(
-		attack_damage,
-		DamagePacket.DamageType.MELEE,
-		self,
-		_target.global_position,
-		Vector3.ZERO
-	)
+	var packet = DamagePacketScript.new(attack_damage, DamagePacketScript.DamageType.MELEE, self, _target.global_position, Vector3.ZERO)
 	if _target.has_method("apply_damage_packet"):
 		_target.call("apply_damage_packet", packet)
 	elif _target.has_method("apply_damage"):
@@ -199,7 +164,6 @@ func _try_attack() -> void:
 func _is_target_visible() -> bool:
 	if _target == null or _planar_distance_to(_target.global_position) > detection_distance:
 		return false
-
 	var origin := global_position + Vector3.UP * 0.65
 	var endpoint := _target.global_position + Vector3.UP * 0.4
 	var query := PhysicsRayQueryParameters3D.create(origin, endpoint)
@@ -223,7 +187,7 @@ func _set_state(next_state: int, force: bool = false) -> void:
 
 
 func _create_health_component() -> void:
-	_health = HealthComponentScript.new() as HealthComponent
+	_health = HealthComponentScript.new()
 	_health.name = "HealthComponent"
 	_health.max_health = 70.0
 	add_child(_health)
@@ -242,7 +206,6 @@ func _create_placeholder_if_needed() -> void:
 	capsule_mesh.material = _material
 	mesh_instance.mesh = capsule_mesh
 	add_child(mesh_instance)
-
 	var collision := CollisionShape3D.new()
 	collision.name = "CollisionShape3D"
 	var shape := CapsuleShape3D.new()
@@ -255,17 +218,12 @@ func _create_placeholder_if_needed() -> void:
 func _update_material_for_state() -> void:
 	if _material == null:
 		return
-
 	_material.emission_enabled = false
 	match _state:
-		State.IDLE:
-			_material.albedo_color = Color(0.28, 0.18, 0.14)
-		State.SUSPICIOUS:
-			_material.albedo_color = Color(0.55, 0.34, 0.10)
-		State.CHASING:
-			_material.albedo_color = Color(0.52, 0.12, 0.08)
-		State.ATTACKING:
-			_material.albedo_color = Color(0.72, 0.06, 0.05)
+		State.IDLE: _material.albedo_color = Color(0.28, 0.18, 0.14)
+		State.SUSPICIOUS: _material.albedo_color = Color(0.55, 0.34, 0.10)
+		State.CHASING: _material.albedo_color = Color(0.52, 0.12, 0.08)
+		State.ATTACKING: _material.albedo_color = Color(0.72, 0.06, 0.05)
 		State.STUNNED:
 			_material.emission_enabled = true
 			_material.emission = Color(0.2, 0.75, 1.0)
